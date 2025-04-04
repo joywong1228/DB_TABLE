@@ -10,6 +10,7 @@ drop table course cascade constraints;
 drop table credential cascade constraints;
 
 --Column level constraints
+--parent: Credential
 create table credential (
    credential# char(20) primary key,
    school      varchar2(250) not null,
@@ -18,6 +19,7 @@ create table credential (
 );
 
 --Table level constraints
+--parent: student
 create table student (
    student_id    number(9) primary key,
    first_name    varchar2(250) not null,
@@ -37,6 +39,7 @@ create table student (
                                              '^[^@]+@[^@]+\.[^@]+$' ) ) -- username@domain.com
 );
 
+--parent: course
 create table course (
    course_code        char(7) primary key,
    name               varchar2(250) not null,
@@ -49,6 +52,7 @@ create table course (
                                                              '^[A-Z]{4}[0-9]{3}$' ) ) --LLL999
 );
 
+--parent: instructor
 create table instructor (
    instructor_id number(9) primary key,
    first_name    varchar2(250) not null,
@@ -69,6 +73,7 @@ create table instructor (
                                                  '^[^@]+@[^@]+\\.[^@]+$' ) ) --usernmae@domain.com
 );
 
+-- Child: SCHEDULED_COURSE (depends on COURSE)
 create table scheduled_course (
    crn           number(5),
    semester_code number(6),
@@ -85,6 +90,7 @@ create table scheduled_course (
                                                '^[A-Z]$' ) ) --L
 );
 
+-- Child: STUDENT_CREDENTIALS (depends on STUDENT, CREDENTIAL)
 create table student_credentials (
    credential#       char(20),
    student_id        number(9),
@@ -104,6 +110,7 @@ create table student_credentials (
                                      'E' ) ) --expired
 )
 
+-- Child: CREDENTIAL_COURSE (depends on CREDENTIAL, COURSE)
 create table credential_course (
    credential# char(20),
    course_code char(7),
@@ -115,6 +122,7 @@ create table credential_course (
       references course ( course_code )
 );
 
+-- Child: INSTRUCTOR_SCHEDULED_COURSE (depends on INSTRUCTOR, SCHEDULED_COURSE)
 create table instructor_scheduled_course (
    crn           number(5),
    semester_code number(6),
@@ -128,6 +136,7 @@ create table instructor_scheduled_course (
       references instructor ( instructor_id )
 );
 
+-- Child: STUDENT_COURSE_RECORD (depends on STUDENT, SCHEDULED_COURSE, CREDENTIAL)
 create table student_course_record (
    crn           number(5),
    semester_code number(6),
@@ -174,6 +183,7 @@ alter table credential
                         'AD', --applied degree
                         'D' ) ); --degree
 
+--modify column size
 alter table course modify (
    name varchar2(100)
 );
