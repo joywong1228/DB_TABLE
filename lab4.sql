@@ -1,3 +1,4 @@
+spool C:\Joy_Sem2\database\gp_proj\git\DB_TABLE\lab4_output.sql
 --drop tables in reverse order with CASCADE option
 drop table student_course_record cascade constraints;
 drop table instructor_scheduled_course cascade constraints;
@@ -47,9 +48,9 @@ create table course (
    prereq_course_code char(7),
    type_flag          char(1) check ( type_flag in ( '0',
                                             '1' ) ), --bool, '0' = false, '1' = true
-   constraint         ck_credits check ( num_of_credits between 1 and 9 )
-      constraint ck_course_code_format check ( regexp_like ( course_code,
-                                                             '^[A-Z]{4}[0-9]{3}$' ) ) --LLL999
+   constraint ck_credits check ( num_of_credits between 1 and 9 ),
+   constraint ck_course_code_format check ( regexp_like ( course_code,
+                                                          '^[A-Z]{4}[0-9]{3}$' ) ) --LLL999
 );
 
 --parent: instructor
@@ -108,7 +109,7 @@ create table student_credentials (
       check ( credential_status in ( 'A', --active
                                      'G', --granted
                                      'E' ) ) --expired
-)
+);
 
 -- Child: CREDENTIAL_COURSE (depends on CREDENTIAL, COURSE)
 create table credential_course (
@@ -184,6 +185,7 @@ alter table credential
                         'D' ) ); --degree
 
 --modify column size
+
 alter table course modify (
    name varchar2(100)
 );
@@ -191,3 +193,18 @@ alter table course modify (
 alter table student modify (
    email_address varchar2(150)
 );
+
+select table_name
+  from user_tables
+ where table_name in ( 'CREDENTIAL',
+                       'STUDENT',
+                       'COURSE',
+                       'INSTRUCTOR',
+                       'SCHEDULED_COURSE',
+                       'STUDENT_CREDENTIALS',
+                       'CREDENTIAL_COURSE',
+                       'INSTRUCTOR_SCHEDULED_COURSE',
+                       'STUDENT_COURSE_RECORD' );
+
+
+spool off
