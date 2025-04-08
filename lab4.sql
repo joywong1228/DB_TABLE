@@ -1,4 +1,6 @@
 spool C:\Joy_Sem2\database\gp_proj\git\DB_TABLE\lab4_output.sql
+
+set echo on
 --drop tables in reverse order with CASCADE option
 drop table student_course_record cascade constraints;
 drop table instructor_scheduled_course cascade constraints;
@@ -31,7 +33,7 @@ create table student (
    email_address varchar2(100) not null,
    constraint ck_status
       check ( status in ( 'A', --active
-                          'AP', --academic 
+                          'P', --academic probation
                           'S', --suspened
                           'E' ) ), --expelled
    constraint ck_phone check ( regexp_like ( phone_number,
@@ -50,7 +52,7 @@ create table course (
                                             '1' ) ), --bool, '0' = false, '1' = true
    constraint ck_credits check ( num_of_credits between 1 and 9 ),
    constraint ck_course_code_format check ( regexp_like ( course_code,
-                                                          '^[A-Z]{4}[0-9]{3}$' ) ) --LLL999
+                                                          '^[A-Z]{3}[0-9]{3}$' ) ) --LLL999
 );
 
 --parent: instructor
@@ -71,7 +73,7 @@ create table instructor (
    constraint ck_phone_ins check ( regexp_like ( phone_number,
                                                  '^[0-9]{3}\\.[0-9]{3}\\.[0-9]{4}$' ) ), --999.999.9999
    constraint ck_email_ins check ( regexp_like ( email,
-                                                 '^[^@]+@[^@]+\\.[^@]+$' ) ) --usernmae@domain.com
+                                                 '^[^@]+@[^@]+\.[^@]+$' ) ) --usernmae@domain.com
 );
 
 -- Child: SCHEDULED_COURSE (depends on COURSE)
