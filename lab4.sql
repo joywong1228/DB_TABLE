@@ -22,6 +22,8 @@ create table credential (
    type        char(2) not null
 );
 
+desc credential;
+
 --Table level constraints
 --parent: student
 create table student (
@@ -44,6 +46,8 @@ create table student (
                                              '^[^@]+@[^@]+\.[^@]+$' ) ) -- username@domain.com
 );
 
+desc student;
+
 --parent: course
 create table course (
    course_code        char(7)
@@ -57,6 +61,8 @@ create table course (
    constraint ck_course_code_format check ( regexp_like ( course_code,
                                                           '^[A-Z]{3}[0-9]{3}$' ) ) --LLL999
 );
+
+desc course;
 
 --parent: instructor
 create table instructor (
@@ -80,6 +86,8 @@ create table instructor (
                                                  '^[^@]+@[^@]+\.[^@]+$' ) ) --usernmae@domain.com
 );
 
+desc instructor;
+
 -- Child: SCHEDULED_COURSE (depends on COURSE)
 create table scheduled_course (
    crn           number(5),
@@ -96,6 +104,8 @@ create table scheduled_course (
    constraint ck_section check ( regexp_like ( section_code,
                                                '^[A-Z]$' ) ) --L
 );
+
+desc scheduled_course;
 
 -- Child: STUDENT_CREDENTIALS (depends on STUDENT, CREDENTIAL)
 create table student_credentials (
@@ -117,6 +127,8 @@ create table student_credentials (
                                      'E' ) ) --expired
 );
 
+desc student_credentials;
+
 -- Child: CREDENTIAL_COURSE (depends on CREDENTIAL, COURSE)
 create table credential_course (
    credential# char(20),
@@ -128,6 +140,8 @@ create table credential_course (
    constraint credential_course_course_code_fk foreign key ( course_code )
       references course ( course_code )
 );
+
+desc credential_course;
 
 -- Child: INSTRUCTOR_SCHEDULED_COURSE (depends on INSTRUCTOR, SCHEDULED_COURSE)
 create table instructor_scheduled_course (
@@ -143,6 +157,8 @@ create table instructor_scheduled_course (
       references instructor ( instructor_id )
 );
 
+desc instructor_scheduled_course;
+
 -- Child: STUDENT_COURSE_RECORD (depends on STUDENT, SCHEDULED_COURSE, CREDENTIAL)
 create table student_course_record (
    crn           number(5),
@@ -151,6 +167,7 @@ create table student_course_record (
    course_code   char(7),
    credential#   char(20),
    letter_grade  varchar2(2),
+   constraint student_course_record_all_pk
       primary key ( crn,
                     semester_code,
                     student_id,
@@ -178,6 +195,8 @@ create table student_course_record (
                                 'I' ) )
 );
 
+desc student_course_record;
+
 --alter
 
 --coz this table is in column-level
@@ -192,13 +211,19 @@ alter table credential
 
 --modify column size
 
+desc credential;
+
 alter table course modify (
    name varchar2(100)
 );
 
+desc course;
+
 alter table student modify (
    email_address varchar2(150)
 );
+
+desc student;
 
 select table_name
   from user_tables
@@ -212,5 +237,17 @@ select table_name
                        'INSTRUCTOR_SCHEDULED_COURSE',
                        'STUDENT_COURSE_RECORD' );
 
+select constraint_name name,
+       constraint_type type
+  from user_constraints
+ where table_name in ( 'CREDENTIAL',
+                       'STUDENT',
+                       'COURSE',
+                       'INSTRUCTOR',
+                       'SCHEDULED_COURSE',
+                       'STUDENT_CREDENTIALS',
+                       'CREDENTIAL_COURSE',
+                       'INSTRUCTOR_SCHEDULED_COURSE',
+                       'STUDENT_COURSE_RECORD' );
 
 spool off
