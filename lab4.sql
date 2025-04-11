@@ -35,15 +35,15 @@ create table student (
    status_date   date not null,
    phone_number  char(12) not null,
    email_address varchar2(100) not null,
-   constraint ck_status
+   constraint student_status_ck
       check ( status in ( 'A', --active
                           'P', --academic probation
                           'S', --suspened
                           'E' ) ), --expelled
-   constraint ck_phone check ( regexp_like ( phone_number,
-                                             '^\d{3}\.\d{3}\.\d{4}$' ) ), --999.999.9999
-   constraint ck_email check ( regexp_like ( email_address,
-                                             '^[^@]+@[^@]+\.[^@]+$' ) ) -- username@domain.com
+   constraint student_phone_ck check ( regexp_like ( phone_number,
+                                                     '^\d{3}\.\d{3}\.\d{4}$' ) ), --999.999.9999
+   constraint student_email_ck check ( regexp_like ( email_address,
+                                                     '^[^@]+@[^@]+\.[^@]+$' ) ) -- username@domain.com
 );
 
 desc student;
@@ -57,9 +57,9 @@ create table course (
    prereq_course_code char(7),
    type_flag          char(1) check ( type_flag in ( '0',
                                             '1' ) ), --bool, '0' = false, '1' = true
-   constraint ck_credits check ( num_of_credits between 1 and 9 ),
-   constraint ck_course_code_format check ( regexp_like ( course_code,
-                                                          '^[A-Z]{3}[0-9]{3}$' ) ) --LLL999
+   constraint crouse_number_of_credits_ck check ( num_of_credits between 1 and 9 ),
+   constraint course__course_code_fk check ( regexp_like ( course_code,
+                                                           '^[A-Z]{3}[0-9]{3}$' ) ) --LLL999
 );
 
 desc course;
@@ -76,14 +76,14 @@ create table instructor (
    postal_code   char(7) not null,
    phone_number  char(12) not null,
    email         varchar2(100) not null,
-   constraint ck_prov check ( regexp_like ( prov,
-                                            '^[A-Z]{2}$' ) ), --LL
-   constraint ck_postal check ( regexp_like ( postal_code,
-                                              '^[A-Z][0-9][A-Z] [0-9][A-Z][0-9]$' ) ), --L9L9L9
-   constraint ck_phone_ins check ( regexp_like ( phone_number,
-                                                 '^[0-9]{3}\\.[0-9]{3}\\.[0-9]{4}$' ) ), --999.999.9999
-   constraint ck_email_ins check ( regexp_like ( email,
-                                                 '^[^@]+@[^@]+\.[^@]+$' ) ) --usernmae@domain.com
+   constraint instructor_prov_ck check ( regexp_like ( prov,
+                                                       '^[A-Z]{2}$' ) ), --LL
+   constraint instructor_postal_code_ck check ( regexp_like ( postal_code,
+                                                              '^[A-Z][0-9][A-Z] [0-9][A-Z][0-9]$' ) ), --L9L9L9
+   constraint instructor_phone_number_ck check ( regexp_like ( phone_number,
+                                                               '^[0-9]{3}\\.[0-9]{3}\\.[0-9]{4}$' ) ), --999.999.9999
+   constraint instructor_email_ck check ( regexp_like ( email,
+                                                        '^[^@]+@[^@]+\.[^@]+$' ) ) --usernmae@domain.com
 );
 
 desc instructor;
@@ -97,12 +97,12 @@ create table scheduled_course (
    constraint scheduled_course_crn_pk primary key ( crn ),
    constraint scheduled_course_course_code_fk foreign key ( course_code )
       references course ( course_code ),
-   constraint ck_crn check ( regexp_like ( crn,
-                                           '^[0-9]{5}$' ) ), --99999
-   constraint ck_semester check ( regexp_like ( semester_code,
-                                                '^[0-9]{6}$' ) ), --YYYYSS
-   constraint ck_section check ( regexp_like ( section_code,
-                                               '^[A-Z]$' ) ) --L
+   constraint scheduled_course_crn_ck check ( regexp_like ( crn,
+                                                            '^[0-9]{5}$' ) ), --99999
+   constraint scheduled_course_semester_code_ck check ( regexp_like ( semester_code,
+                                                                      '^[0-9]{6}$' ) ), --YYYYSS
+   constraint scheduled_course_section_code_ck check ( regexp_like ( section_code,
+                                                                     '^[A-Z]$' ) ) --L
 );
 
 desc scheduled_course;
@@ -121,7 +121,7 @@ create table student_credentials (
       references credential ( credential# ),
    constraint student_credential_student_id_fk foreign key ( student_id )
       references student ( student_id ),
-   constraint ck_cred_status
+   constraint student_credentials_credential_status_ck
       check ( credential_status in ( 'A', --active
                                      'G', --granted
                                      'E' ) ) --expired
@@ -179,7 +179,7 @@ create table student_course_record (
       references student ( student_id ),
    foreign key ( credential# )
       references credential ( credential# ),
-   constraint ck_grade
+   constraint student_course_record_letter_grade_ck
       check ( letter_grade in ( 'A+',
                                 'A',
                                 'A-',
@@ -201,7 +201,7 @@ desc student_course_record;
 
 --coz this table is in column-level
 alter table credential
-   add constraint ck_type
+   add constraint credential_type_ck
       check ( type in ( 'MI', --micro
                         'FT', --fast track
                         'CT', --certificate
