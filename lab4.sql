@@ -15,7 +15,8 @@ drop table credential cascade constraints;
 --Column level constraints
 --parent: Credential
 create table credential (
-   credential# char(20) primary key,
+   credential# char(20)
+      constraint hero_hero_id_pk primary key,
    school      varchar2(250) not null,
    name        varchar2(22) not null,
    type        char(2) not null
@@ -24,7 +25,8 @@ create table credential (
 --Table level constraints
 --parent: student
 create table student (
-   student_id    number(9) primary key,
+   student_id    number(9)
+      constraint student_student_id_pk primary key,
    first_name    varchar2(250) not null,
    last_name     varchar2(250) not null,
    status        char(1) not null,
@@ -44,7 +46,8 @@ create table student (
 
 --parent: course
 create table course (
-   course_code        char(7) primary key,
+   course_code        char(7)
+      constraint course_course_code_pk primary key,
    name               varchar2(250) not null,
    num_of_credits     number(1) not null,
    prereq_course_code char(7),
@@ -57,7 +60,8 @@ create table course (
 
 --parent: instructor
 create table instructor (
-   instructor_id number(9) primary key,
+   instructor_id number(9)
+      constraint instructor_instructor_id_pk primary key,
    first_name    varchar2(250) not null,
    last_name     varchar2(250) not null,
    address       varchar2(100) not null,
@@ -82,8 +86,8 @@ create table scheduled_course (
    semester_code number(6),
    course_code   char(7),
    section_code  char(1),
-   primary key ( crn ),
-   foreign key ( course_code )
+   constraint scheduled_course_crn_pk primary key ( crn ),
+   constraint scheduled_course_course_code_fk foreign key ( course_code )
       references course ( course_code ),
    constraint ck_crn check ( regexp_like ( crn,
                                            '^[0-9]{5}$' ) ), --99999
@@ -101,11 +105,11 @@ create table student_credentials (
    completion_date   date,
    credential_status char(1),
    gpa               number(2,1),
-   primary key ( credential#,
-                 student_id ),
-   foreign key ( credential# )
+   constraint student_credential_credential#_pk primary key ( credential#,
+                                                              student_id ),
+   constraint student_credential_credential#_fk foreign key ( credential# )
       references credential ( credential# ),
-   foreign key ( student_id )
+   constraint student_credential_student_id_fk foreign key ( student_id )
       references student ( student_id ),
    constraint ck_cred_status
       check ( credential_status in ( 'A', --active
@@ -117,11 +121,11 @@ create table student_credentials (
 create table credential_course (
    credential# char(20),
    course_code char(7),
-   primary key ( credential#,
-                 course_code ),
-   foreign key ( credential# )
+   constraint credential_course_credential#_pk primary key ( credential#,
+                                                             course_code ),
+   constraint credential_course_credentail#_fk foreign key ( credential# )
       references credential ( credential# ),
-   foreign key ( course_code )
+   constraint credential_course_course_code_fk foreign key ( course_code )
       references course ( course_code )
 );
 
@@ -130,12 +134,12 @@ create table instructor_scheduled_course (
    crn           number(5),
    semester_code number(6),
    instructor_id number(9),
-   primary key ( crn,
-                 semester_code,
-                 instructor_id ),
-   foreign key ( crn )
+   constraint instructor_scheduled_course_crn_pk primary key ( crn,
+                                                               semester_code,
+                                                               instructor_id ),
+   constraint instructor_scheduled_course_crn_fk foreign key ( crn )
       references scheduled_course ( crn ),
-   foreign key ( instructor_id )
+   constraint instructor_scheduled_course_instructor_id_fk foreign key ( instructor_id )
       references instructor ( instructor_id )
 );
 
